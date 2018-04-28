@@ -14,6 +14,7 @@
 
 参考ページ：<a href="https://jp.vuejs.org/v2/guide/index.html">jp.vuejs.org</a>
 
+
 <h2>単純な埋め込み</h2>
 <div id="app">
     <p>{{ message }}</p>
@@ -26,6 +27,7 @@
         }
     })
 </script>
+
 
 <h2>条件分岐</h2>
 <div id="app2">
@@ -50,6 +52,7 @@
     }
 </script>
 
+
 <h2>ループ</h2>
 <div id="app3">
     <ol>
@@ -70,6 +73,7 @@
         }
     })
 </script>
+
 
 <h2>ユーザ入力の反映</h2>
 <div id="app4">
@@ -93,6 +97,33 @@
         }
     })
 </script>
+
+
+<h2>コンポーネントによる構成</h2>
+<div id="app5">
+    <ol>
+        <sample-item v-for="item in tasks" v-bind:todo="item"></sample-item>
+    </ol>
+</div>
+<script>
+    // コンポーネントの定義
+    Vue.component('sample-item', {
+        props: ['todo'],
+        template: '<li>{{ todo.text }}</li>'
+    });
+
+    new Vue({
+        el: "#app5",
+        data: {
+            tasks: [
+                { id: 0, text: "Task A" },
+                { id: 1, text: "Task B" },
+                { id: 2, text: "Task C" }
+            ]
+        }
+    })
+</script>
+
 
 
 </body>
