@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Riot.js Trial</title>
+    <!-- Riot.js+インブラウザコンパイラを読み込む -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/riot/2.6.7/riot+compiler.js"></script>
+</head>
+<body>
+
+<h1>Riot.js</h1>
+
+<!-- ここに出力される -->
+<hoge></hoge>
+<fuga></fuga>
+<onclick-action-test></onclick-action-test>
+
+<!-- 外部ファイルにタグの処理を記述 -->
+<script src="tags/hoge.tag" type="riot/tag"></script>
+<script src="tags/onclick-action-test.tag" type="riot/tag"></script>
+
+<!-- インラインでタグの処理を記述 -->
+<script type="riot/tag">
+<fuga>
+
+<!-- テンプレートとなる部分 -->
+<h2>インライン要素</h2>
+<p>インライン要素としてタグの処理を記述しました</p>
+<table>
+<tr each={num in numbers}>
+<td>{num}</td>
+<td>{num * 100}</td>
+</tr>
+</table>
+<!-- /テンプレートとなる部分 -->
+
+// 処理となる部分:START
+this.numbers = [1,2,3,4];
+// 処理となる部分:END
+
+</fuga>
+</script>
+
+<script>
+    // custom-tag-* タグをマウントして実行
+    riot.mount('*');
+</script>
+
+</body>
+</html>

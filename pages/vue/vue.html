@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vue.js Trial</title>
+    <!-- 開発バージョン、便利なコンソールの警告が含まれています -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <!-- 本番バージョン、サイズと速度のために最適化されています -->
+    <!--script src="https://unpkg.com/vue"></script-->
+</head>
+<body>
+
+<h1>Vue.js</h1>
+
+参考ページ：<a href="https://jp.vuejs.org/v2/guide/index.html">jp.vuejs.org</a>
+
+<h2>単純な埋め込み</h2>
+<div id="app">
+    <p>{{ message }}</p>
+</div>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            message: 'Hello Vue.js!'
+        }
+    })
+</script>
+
+<h2>条件分岐</h2>
+<div id="app2">
+    <button>{{ message }}</button>
+    <span v-if="message === 'ON'">ボタンが ON のときだけ表示される文書です。</span>
+</div>
+<script>
+    var app2 = new Vue({
+        el: '#app2',
+        data: {
+            message: 'OFF'
+        }
+    });
+</script>
+<script>
+    document.getElementById("app2").onclick = function() {
+        if (app2.message === "ON") {
+            app2.message = "OFF";
+        } else {
+            app2.message = "ON";
+        }
+    }
+</script>
+
+<h2>ループ</h2>
+<div id="app3">
+    <ol>
+        <li v-for="todo in todos">
+            {{ todo.text }}
+        </li>
+    </ol>
+</div>
+<script>
+    new Vue({
+        el: "#app3",
+        data: {
+            todos: [
+                { text: "資料作り" },
+                { text: "取引先への連絡" },
+                { text: "クレームメール対応" }
+            ]
+        }
+    })
+</script>
+
+<h2>ユーザ入力の反映</h2>
+<div id="app4">
+    <p>{{ message }}</p>
+    <input type="text" v-on:input="changeMessage">
+    <button v-on:click="reverseMessage">Reverse Message</button>
+</div>
+<script>
+    new Vue({
+        el: "#app4",
+        data: {
+            message: "Hello, World!"
+        },
+        methods: {
+            reverseMessage: function() {
+                this.message = this.message.split('').reverse().join('');
+            },
+            changeMessage: function (event) {
+                this.message = event.target.value;
+            }
+        }
+    })
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>D3.js Trial</title>
+    <script type="text/javascript" src="http://d3js.org/d3.v3.js"></script>
+</head>
+<body>
+
+<h1>D3.js</h1>
+
+<p>This is sample html.</p>
+
+<h2>read csv</h2>
+<div id="result"></div>
+<script>
+    d3.csv('files/sample.csv', function(error, list){
+        d3.select("#result")
+            .append("table").selectAll("tr").data(list).enter().append("tr").append("td").text(function(d){ return d['a'] })
+    })
+</script>
+
+
+<h2>bar chart</h2>
+
+<svg id="bar" width="500" height="300"></svg>
+<script>
+    d3.csv('files/sample.csv', function(csvdata) {
+        var dataset = [];
+        for(var i = 0; i < csvdata.length; i++) {
+            dataset.push(csvdata[i]['a']);
+        }
+        make(dataset)
+    });
+
+    function make(dataset) {
+        d3.select('#bar').selectAll('rect')
+            .data(dataset)
+            .enter()
+            .append('rect')
+            .attr({
+                x : function(d, i){ return i * 30; },
+                y : function(d){ return 300 - d; },
+                width : 15,
+                height : function(d){ return d; },
+                fill : '#6fbadd'
+            })
+    }
+</script>
+
+</body>
+</html>
