@@ -55,11 +55,16 @@
 
 <h2>ループ</h2>
 <div id="app3">
-    <ol>
+    <ul>
         <li v-for="todo in todos">
             {{ todo.text }}
         </li>
-    </ol>
+    </ul>
+    <ul>
+        <li v-for="(item, index) in todos">
+            {{ index + 1 }} - {{ item.text }}
+        </li>
+    </ul>
 </div>
 <script>
     new Vue({
