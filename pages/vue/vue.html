@@ -32,7 +32,9 @@
 <h2>条件分岐</h2>
 <div id="app2">
     <button>{{ message }}</button>
-    <span v-if="message === 'ON'">ボタンが ON のときだけ表示される文書です。</span>
+    <span v-if="message === 'ON'">ボタンが ON のときだけ表示される文書です（v-if）。</span>
+    <span v-else>表示されない</span>
+    <span v-show="message === 'ON'">ボタンが ON のときだけ表示される文書です（v-show）。</span>
 </div>
 <script>
     var app2 = new Vue({
@@ -55,14 +57,34 @@
 
 <h2>ループ</h2>
 <div id="app3">
+    <h3>リストから値を順に取り出す</h3>
     <ul>
-        <li v-for="todo in todos">
-            {{ todo.text }}
+        <li v-for="item in list">
+            {{ item.key }}
         </li>
     </ul>
+    <h3>リストからインデックス付きで値を順に取り出す</h3>
     <ul>
-        <li v-for="(item, index) in todos">
-            {{ index + 1 }} - {{ item.text }}
+        <li v-for="(item, index) in list">
+            {{ index + 1 }} - {{ item.key }}
+        </li>
+    </ul>
+    <h3>辞書からインデックス・キー・値を順に取り出す</h3>
+    <ul>
+        <li v-for="(val, key, index) in object">
+            {{ index + 1 }} - {{ key }} - {{ val }}
+        </li>
+    </ul>
+    <h3>文字列から1文字ずつ取り出す</h3>
+    <ul>
+        <li v-for="(char, index) in string">
+            {{ index + 1 }} - {{ char }}
+        </li>
+    </ul>
+    <h3>整数を1から順に取り出す</h3>
+    <ul>
+        <li v-for="(num, index) in number">
+            {{ index + 1 }} - {{ num }}
         </li>
     </ul>
 </div>
@@ -70,11 +92,18 @@
     new Vue({
         el: "#app3",
         data: {
-            todos: [
-                { text: "資料作り" },
-                { text: "取引先への連絡" },
-                { text: "クレームメール対応" }
-            ]
+            list: [
+                { key: "value1" },
+                { key: "value2" },
+                { key: "value3" }
+            ],
+            object: {
+                key1: "value1",
+                key2: "value2",
+                key3: "value3"
+            },
+            string: "abcdefg",
+            number: 7
         }
     })
 </script>
@@ -82,15 +111,74 @@
 
 <h2>ユーザ入力の反映</h2>
 <div id="app4">
+    <h3>v-on</h3>
     <p>{{ message }}</p>
-    <input type="text" v-on:input="changeMessage">
+    <input type="text" v-on:input="changeMessage" v-bind:value="message">
+    <!-- @ を使って略記も可能
+    <input type="text" @input="changeMessage" v-bind:value="message">
+    -->
     <button v-on:click="reverseMessage">Reverse Message</button>
+    <h3>v-model</h3>
+    <p>
+        textarea 要素：{{ model.messageTextarea }}<br/>
+        <textarea v-model:value="model.messageTextarea"></textarea>
+    </p>
+    <p>
+        input 要素（入力フォーム）：{{ model.messageInput }}<br/>
+        <input v-model:value="model.messageInput">
+    </p>
+    <p>
+        input 要素（チェックボックス・単数）：{{ model.checkBoxSelected }}<br/>
+        <input type="checkbox" v-model="model.checkBoxSelected">
+    </p>
+    <p>
+        input 要素（チェックボックス・複数）：{{ model.checkedWords.sort() }}<br/>
+        <label><input type="checkbox" value="apple" v-model="model.checkedWords">りんご</label>
+        <label><input type="checkbox" value="orange" v-model="model.checkedWords">みかん</label>
+        <label><input type="checkbox" value="grape" v-model="model.checkedWords">ぶどう</label>
+    </p>
+    <p>
+        input 要素（ラジオボタン）：{{ model.radioModuration }}<br/>
+        <label><input type="radio" value="AM" v-model="model.radioModuration">午前</label>
+        <label><input type="radio" value="PM" v-model="model.radioModuration">午後</label>
+    </p>
+    <p>
+        セレクトボックス・単数：{{ model.selectBoxSelected }}<br/>
+        <select v-model="model.selectBoxSelected">
+            <option disabled value="">元号を選択して下さい</option>
+            <option>明治</option>
+            <option>大正</option>
+            <option>昭和</option>
+            <option>平成</option>
+        </select>
+    </p>
+    <p>
+        セレクトボックス・複数：{{ model.selectedWords }}<br/>
+        <select v-model="model.selectedWords" multiple>
+            <option disabled value="">好きなジャンルを選択して下さい（複数可）</option>
+            <option>歴史</option>
+            <option>SF</option>
+            <option>ミステリー</option>
+            <option>恋愛</option>
+        </select>
+    </p>
+
+
 </div>
 <script>
     new Vue({
         el: "#app4",
         data: {
-            message: "Hello, World!"
+            message: "(Default Message)",
+            model: {
+                messageInput: "",
+                messageTextarea: "",
+                checkBoxSelected: false,
+                checkedWords: [],
+                radioModuration: "",
+                selectBoxSelected: false,
+                selectedWords: []
+            }
         },
         methods: {
             reverseMessage: function() {
@@ -104,8 +192,38 @@
 </script>
 
 
-<h2>コンポーネントによる構成</h2>
+<h2>算出プロパティ</h2>
 <div id="app5">
+    奇数：{{ odd }}<br/>
+    偶数：{{ even }}<br/>
+    <ul v-for="num in odd">
+        <li>奇数：{{ num }}</li>
+    </ul>
+    <ul v-for="num in even">
+        <li>偶数：{{ num }}</li>
+    </ul>
+</div>
+<script>
+    new Vue({
+        el: '#app5',
+        data: {
+            numArray: [0, 1, 2, 3, 4, 5]
+        },
+        computed: {
+            odd(){
+                return this.numArray.filter(n => {return n % 2 !== 0})
+            },
+            even(){
+                return this.numArray.filter(n => {return n % 2 === 0})
+            }
+        }
+    })
+</script>
+
+
+
+<h2>コンポーネントによる構成</h2>
+<div id="app6">
     <ol>
         <sample-item v-for="item in tasks" v-bind:todo="item"></sample-item>
     </ol>
@@ -118,14 +236,29 @@
     });
 
     new Vue({
-        el: "#app5",
+        el: "#app6",
         data: {
+            title: "ToDo List",
             tasks: [
                 { id: 0, text: "Task A" },
                 { id: 1, text: "Task B" },
                 { id: 2, text: "Task C" }
             ]
         }
+    })
+</script>
+
+
+
+<h2>単一ファイルコンポーネント</h2>
+<div id="app7">
+    <mymessage></mymessage>
+</div>
+<script>
+    import MyMessage from './vue_files/MyMessage';
+    new Vue({
+        el: '#app7',
+        components: { 'mymessage': MyMessage }
     })
 </script>
 
