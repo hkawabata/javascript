@@ -6,6 +6,9 @@
 <body>
 
     <script>
+    var timeSec = 0;
+    var timeFrame = 0;
+
     var config = {
         // Phaser.CANVAS, Phaser.WEBGL, or Phaser.AUTO が使用可
         type: Phaser.AUTO,
@@ -15,8 +18,7 @@
         physics: {
             default: 'arcade',
             arcade: {
-                gravity: { y: 200 },
-                debug: false
+                gravity: { y: 200 }
             }
         },
         scene: {
@@ -34,47 +36,130 @@
 
         this.load.image('back', 'assets/skies/nebula.jpg');
         this.load.image('block', 'assets/rope/glassblock.png');
+        this.load.image('apple', 'assets/sprites/apple.png');
+        this.load.image('square', 'assets/sprites/50x50.png');
 
         this.load.spritesheet('dude', 
             'assets/sprites/dude.png',
             { frameWidth: 32, frameHeight: 48 }
         );
-        /*
-        this.load.image('sky', 'assets/sky.png');
-        this.load.image('ground', 'assets/platform.png');
-        this.load.image('star', 'assets/star.png');
-        this.load.image('bomb', 'assets/bomb.png');
-        */
     }
 
     function create ()
     {
         this.add.image(400, 300, 'back');
 
-        // 
+        /* 
+        Physics body には2種類ある。static / dynamic
+        - dynamic body : 速度や加速度を受けて動くことができ、跳ね返ったり衝突したり（質量などのパラメータによる影響も反映可能）できる
+        - static body  : 位置と大きさだけを持つ。速度や加速度は持たず、動かない
+
+        Group とは？
+        - 複数のオブジェクトを単一のユニットとして制御できる
+
+        setScale 関数
+        - 画像サイズを定数倍する
+        refreshBody
+        - static な physic body を変更したということを physics world に教えてあげる
+        */
         platforms = this.physics.add.staticGroup();
-        platforms.create(400, 568, 'block').setScale(0.5).refreshBody();
+        platforms.create(400, 600, 'block').setScale(1.8).refreshBody();
         platforms.create(600, 400, 'block').setScale(0.5).refreshBody();
         platforms.create(50, 250, 'block').setScale(0.5).refreshBody();
 
-        /*
-        var particles = this.add.particles('red');
 
-        var emitter = particles.createEmitter({
-            speed: 100,
-            scale: { start: 1, end: 0 },
-            blendMode: 'ADD'
+        // プレイヤーの追加・設定
+        player = this.physics.add.sprite(185, 400, 'dude');
+        player.setBounce(0.2);  // 反発係数
+        player.setCollideWorldBounds(true);  // 画面枠に衝突
+        // プレイヤーのアニメーション定義
+        this.anims.create({
+            key: 'left',  // アニメーションの名称
+            frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),  // sprite sheet の何フレーム目を使うか
+            frameRate: 10,  // 1秒あたりのフレーム数（この設定の場合、1秒に10フレーム（0,1,2,3,0,1,2,3,0,1）が使われる）
+            repeat: -1      // sprite sheet のフレームを順に無限回ループさせる設定
+        });
+        this.anims.create({
+            key: 'turn',
+            frames: [ { key: 'dude', frame: 4 } ],
+            frameRate: 20
+        });
+        this.anims.create({
+            key: 'right',
+            frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
+            frameRate: 10,
+            repeat: -1
         });
 
-        var logo = this.physics.add.image(400, 100, 'logo');
 
-        logo.setVelocity(100, 200);
-        // logo.setBounce(1, 1);
-        logo.setBounce(0.5, 0.5);
-        logo.setCollideWorldBounds(true);
-
-        emitter.startFollow(logo);
+        /*
+        オブジェクトの衝突判定の設定
+        - どのオブジェクトとどのオブジェクトが衝突するのか、設定に明記する
         */
+        this.physics.add.collider(player, platforms);
+
+        // カーソル？
+        cursors = this.input.keyboard.createCursorKeys();
+
+        // リンゴを配置
+        //apple = this.add.image(300, 400, 'apple');
+        apple = this.physics.add.sprite(300, 400, 'apple')
+        apple.setBounce(0.8);
+        apple.setCollideWorldBounds(true);
+        this.physics.add.collider(apple, platforms);
+        this.physics.add.collider(apple, player);
+
+        // ブロック配置
+        //block = this.physics.add.sprite(200, 100, 'square')
+        block = this.physics.add.group({allowGravity: false});
+        block.create(200, 100, 'square').setScale(0.5);
+        block.create(200, 126, 'square').setScale(0.5);
+
+        // 時刻表示
+        timeText = this.add.text(16, 16, 'Time: 0', {fontSize: '32px', fill: '#FFFFFF'})
+    }
+
+    function update () {
+        /*
+        上下左右のカーソルキーが押されたときの挙動の定義
+        */
+        if (player.body.touching.down) {  // プレイヤーが地面に着いた状態だったら
+            if (cursors.left.isDown)  // 左キーが押された状態だったら
+            {
+                player.setVelocityX(-160);        // x方向の速度を-160に設定
+                player.anims.play('left', true);  // 'left' アニメーションを実行
+            }
+            else if (cursors.right.isDown)
+            {
+                player.setVelocityX(160);
+                player.anims.play('right', true);
+            }
+            else
+            {
+                player.setVelocityX(0);  // x方向の速度を0に設定
+                player.anims.play('turn');  // 'turn' アニメーションを実行
+            }
+
+            if (cursors.up.isDown)  // 上キーが押された状態だったら
+            {
+                player.setVelocityY(-330);  // y方向の速度を-330に設定（ジャンプ）
+            }
+        }
+
+        // リンゴを回転させる
+        apple.angle += 1;
+
+        block.angle += 2;
+
+        updateTime(timeText);
+    }
+
+    function updateTime(timeText) {
+        timeFrame += 1;
+        if (timeFrame % 60 == 0) {
+            timeSec += 1;
+        }
+        timeText.setText('time: ' + timeSec);
     }
     </script>
 
