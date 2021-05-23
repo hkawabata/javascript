@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3.15.1/dist/phaser-arcade-physics.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.54.0/dist/phaser-arcade-physics.min.js"></script>
 </head>
 <body>
 
@@ -102,7 +102,6 @@
         cursors = this.input.keyboard.createCursorKeys();
 
         // リンゴを配置
-        //apple = this.add.image(300, 400, 'apple');
         apple = this.physics.add.sprite(300, 400, 'apple')
         apple.setBounce(0.8);
         apple.setCollideWorldBounds(true);
@@ -114,9 +113,10 @@
         block = this.physics.add.group({allowGravity: false});
         block.create(200, 100, 'square').setScale(0.5);
         block.create(200, 126, 'square').setScale(0.5);
+        this.physics.add.collider(block, player);
 
         // 時刻表示
-        timeText = this.add.text(16, 16, 'Time: 0', {fontSize: '32px', fill: '#FFFFFF'})
+        timeText = this.add.text(16, 16, 'Frames: 0', {fontSize: '32px', fill: '#FFFFFF'})
     }
 
     function update () {
@@ -149,17 +149,20 @@
         // リンゴを回転させる
         apple.angle += 1;
 
-        block.angle += 2;
+        // ブロックを回転させる
+        if (timeFrame % 60 === 0) {
+            block.rotate(3.141592 /4);
+        }
+        if (timeFrame % 240 == 0) {
+            Phaser.Actions.RotateAround(block.getChildren(), {x: 200, y: 100}, 3.14159265 / 2);
+        }
 
         updateTime(timeText);
     }
 
     function updateTime(timeText) {
         timeFrame += 1;
-        if (timeFrame % 60 == 0) {
-            timeSec += 1;
-        }
-        timeText.setText('time: ' + timeSec);
+        timeText.setText('Frames: ' + timeFrame);
     }
     </script>
 
