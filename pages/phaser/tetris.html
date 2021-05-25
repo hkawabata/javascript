@@ -63,11 +63,13 @@
         this.load.image('block', 'assets/sprites/50x50.png');
     }
 
-    var fieldTopLeft = {x: 50, y: 50};
-    var blockSize = 25;
-    var numBlockX = 10;
-    var numBlockY = 20;
-    var gridColor = 0xffffff
+    let fieldTopLeft = {x: 50, y: 50};
+    let blockSize = 25;
+    let numBlockX = 10;
+    let numBlockY = 20;
+    let gridColor = 0xffffff
+
+    
 
     function create ()
     {
@@ -85,7 +87,7 @@
         block.create(200, 125, 'block').setScale(0.5);
         block.create(200, 75, 'block').setScale(0.5);
         block.create(225, 75, 'block').setScale(0.5);
-        tmp = new TetrisBlock(block, {x: 200, y: 100});
+        tetrisBlock = new TetrisBlock(block, {x: 200, y: 100});
 
         keySpace = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
         keyLeft = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT)
@@ -100,163 +102,25 @@
     {
         if (time - timeBlockLastMoved > 10) {
             if (keySpace.isDown) {
-                tmp.rotate();
+                tetrisBlock.rotate();
                 //Phaser.Actions.RotateAround(block.getChildren(), {x: 200, y: 100}, 3.14159265 / 2);
                 timeBlockLastMoved = time;
             } else if (keyLeft.isDown) {
-                tmp.move(-blockSize, 0);
+                tetrisBlock.move(-blockSize, 0);
                 timeBlockLastMoved = time;
             } else if (keyRight.isDown) {
-                tmp.move(blockSize, 0);
+                tetrisBlock.move(blockSize, 0);
                 timeBlockLastMoved = time;
             }
+        }
+
+        if (time % 60 === 0) {
+            tetrisBlock.move(0, blockSize)
         }
         
         time += 1;
         timeText.setText('Frames: ' + time);
     }
-
-
-    /*
-    var timeSec = 0;
-    var timeFrame = 0;
-
-    var config = {
-        // Phaser.CANVAS, Phaser.WEBGL, or Phaser.AUTO が使用可
-        type: Phaser.AUTO,
-        width: 800,
-        height: 600,
-        // 物理エンジンの利用宣言？
-        physics: {
-            default: 'arcade',
-            arcade: {
-                gravity: { y: 200 }
-            }
-        },
-        scene: {
-            preload: preload,
-            create: create,
-            update: update
-        }
-    };
-
-    var game = new Phaser.Game(config);
-
-    function preload ()
-    {
-        this.load.setBaseURL('http://labs.phaser.io');
-
-        this.load.image('back', 'assets/skies/nebula.jpg');
-        this.load.image('block', 'assets/rope/glassblock.png');
-        this.load.image('apple', 'assets/sprites/apple.png');
-        this.load.image('square', 'assets/sprites/50x50.png');
-
-        this.load.spritesheet('dude', 
-            'assets/sprites/dude.png',
-            { frameWidth: 32, frameHeight: 48 }
-        );
-    }
-
-    function create ()
-    {
-        this.add.image(400, 300, 'back');
-
-        platforms = this.physics.add.staticGroup();
-        platforms.create(400, 600, 'block').setScale(1.8).refreshBody();
-        platforms.create(600, 400, 'block').setScale(0.5).refreshBody();
-        platforms.create(50, 250, 'block').setScale(0.5).refreshBody();
-
-
-        // プレイヤーの追加・設定
-        player = this.physics.add.sprite(185, 400, 'dude');
-        player.setBounce(0.2);  // 反発係数
-        player.setCollideWorldBounds(true);  // 画面枠に衝突
-        // プレイヤーのアニメーション定義
-        this.anims.create({
-            key: 'left',  // アニメーションの名称
-            frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),  // sprite sheet の何フレーム目を使うか
-            frameRate: 10,  // 1秒あたりのフレーム数（この設定の場合、1秒に10フレーム（0,1,2,3,0,1,2,3,0,1）が使われる）
-            repeat: -1      // sprite sheet のフレームを順に無限回ループさせる設定
-        });
-        this.anims.create({
-            key: 'turn',
-            frames: [ { key: 'dude', frame: 4 } ],
-            frameRate: 20
-        });
-        this.anims.create({
-            key: 'right',
-            frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
-            frameRate: 10,
-            repeat: -1
-        });
-
-
-        this.physics.add.collider(player, platforms);
-
-        // カーソル？
-        cursors = this.input.keyboard.createCursorKeys();
-
-        // リンゴを配置
-        apple = this.physics.add.sprite(300, 400, 'apple')
-        apple.setBounce(0.8);
-        apple.setCollideWorldBounds(true);
-        this.physics.add.collider(apple, platforms);
-        this.physics.add.collider(apple, player);
-
-        // ブロック配置
-        //block = this.physics.add.sprite(200, 100, 'square')
-        block = this.physics.add.group({allowGravity: false});
-        block.create(200, 100, 'square').setScale(0.5);
-        block.create(200, 126, 'square').setScale(0.5);
-        this.physics.add.collider(block, player);
-
-        // 時刻表示
-        timeText = this.add.text(16, 16, 'Frames: 0', {fontSize: '32px', fill: '#FFFFFF'})
-    }
-
-    function update () {
-        if (player.body.touching.down) {  // プレイヤーが地面に着いた状態だったら
-            if (cursors.left.isDown)  // 左キーが押された状態だったら
-            {
-                player.setVelocityX(-160);        // x方向の速度を-160に設定
-                player.anims.play('left', true);  // 'left' アニメーションを実行
-            }
-            else if (cursors.right.isDown)
-            {
-                player.setVelocityX(160);
-                player.anims.play('right', true);
-            }
-            else
-            {
-                player.setVelocityX(0);  // x方向の速度を0に設定
-                player.anims.play('turn');  // 'turn' アニメーションを実行
-            }
-
-            if (cursors.up.isDown)  // 上キーが押された状態だったら
-            {
-                player.setVelocityY(-330);  // y方向の速度を-330に設定（ジャンプ）
-            }
-        }
-
-        // リンゴを回転させる
-        apple.angle += 1;
-
-        // ブロックを回転させる
-        if (timeFrame % 60 === 0) {
-            block.rotate(3.141592 /4);
-        }
-        if (timeFrame % 240 == 0) {
-            Phaser.Actions.RotateAround(block.getChildren(), {x: 200, y: 100}, 3.14159265 / 2);
-        }
-
-        updateTime(timeText);
-    }
-
-    function updateTime(timeText) {
-        timeFrame += 1;
-        timeText.setText('Frames: ' + timeFrame);
-    }
-    */
     </script>
 
 </body>
