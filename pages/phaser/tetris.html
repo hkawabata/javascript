@@ -21,6 +21,15 @@
                 sq.setY(newY);
             });
         }
+
+        move (x, y) {
+            this.squares.children.each(function (sq) {
+                sq.x += x;
+                sq.y += y;
+            });
+            this.centor.x += x;
+            this.centor.y += y;
+        }
     }
 
 
@@ -95,7 +104,11 @@
                 //Phaser.Actions.RotateAround(block.getChildren(), {x: 200, y: 100}, 3.14159265 / 2);
                 timeBlockLastMoved = time;
             } else if (keyLeft.isDown) {
-                
+                tmp.move(-blockSize, 0);
+                timeBlockLastMoved = time;
+            } else if (keyRight.isDown) {
+                tmp.move(blockSize, 0);
+                timeBlockLastMoved = time;
             }
         }
         
